@@ -16,18 +16,22 @@ async def handle_forward(message: Message):
         # Извлекаем данные о товарах из текста
         results = extract_product(message.text)
         if results:
-            for name, price in results:  # Обрабатываем каждый товар
-                source = message.forward_from_chat.title  # Источник: название канала
+            # Определяем источник (название канала) и пользователя (кто переслал сообщение)
+            source = message.forward_from_chat.title
+            user = message.from_user.username or message.from_user.first_name
+            
+            # Обрабатываем каждый товар
+            for name, price in results:
                 # Проверяем типы данных перед записью в базу
                 if not isinstance(name, str) or not isinstance(price, int):
                     raise ValueError("Некорректные данные: name должен быть строкой, price — целым числом.")
                 
-                # Добавляем товар в базу данных
-                await insert_product(name, price, source)
-                logging.info(f"✅ Добавлен товар: name={name}, price={price}, source={source}")
+                # Добавляем товар в базу данных с указанием пользователя
+                await insert_product(name, price, source, user)
+                logging.info(f"✅ Добавлен товар: name={name}, price={price}, source={source}, user={user}")
             
             # Отправляем ответ пользователю
-            await message.reply(f"✅ Найдено {len(results)} товар(ов).")
+            await message.reply(f"✅ Найдено {len(results)} товар(ов). (Добавил: @{user})")
         else:
             await message.reply("❌ Не удалось извлечь товары из пересланного сообщения.")
     except Exception as e:
@@ -43,18 +47,22 @@ async def handle_text(message: Message):
         # Извлекаем данные о товарах из текста
         results = extract_product(message.text)
         if results:
-            for name, price in results:  # Обрабатываем каждый товар
-                source = "user_input"  # Источник: пользовательский ввод
+            # Определяем источник (пользовательский ввод) и пользователя (кто отправил сообщение)
+            source = "user_input"
+            user = message.from_user.username or message.from_user.first_name
+            
+            # Обрабатываем каждый товар
+            for name, price in results:
                 # Проверяем типы данных перед записью в базу
                 if not isinstance(name, str) or not isinstance(price, int):
                     raise ValueError("Некорректные данные: name должен быть строкой, price — целым числом.")
                 
-                # Добавляем товар в базу данных
-                await insert_product(name, price, source)
-                logging.info(f"✅ Добавлен товар: name={name}, price={price}, source={source}")
+                # Добавляем товар в базу данных с указанием пользователя
+                await insert_product(name, price, source, user)
+                logging.info(f"✅ Добавлен товар: name={name}, price={price}, source={source}, user={user}")
             
             # Отправляем ответ пользователю
-            await message.reply(f"✅ Найдено {len(results)} товар(ов).")
+            await message.reply(f"✅ Найдено {len(results)} товар(ов). (Добавил: @{user})")
         else:
             await message.reply("❌ Не удалось извлечь товары из текстового сообщения.")
     except Exception as e:

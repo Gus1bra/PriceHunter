@@ -9,6 +9,7 @@ async def init_db():
                 name TEXT,
                 price INTEGER,
                 source TEXT,
+                user TEXT NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
