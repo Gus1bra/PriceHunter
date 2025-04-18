@@ -15,7 +15,7 @@ dp.include_router(forward_handler.router)
 # Настройка Webhook
 @app.on_event("startup")
 async def on_startup():
-    await bot.set_webhook("https://yourdomain.com/webhook")
+    await bot.set_webhook("https://pricehunter-l7rb.onrender.com")
 
 # Обработка входящих обновлений от Telegram
 @app.post("/webhook")
