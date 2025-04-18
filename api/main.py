@@ -1,13 +1,14 @@
 from fastapi import FastAPI, Request
 from aiogram import Bot, Dispatcher
+from aiogram.client.default import DefaultBotProperties  # Импортируем DefaultBotProperties
 from aiogram.types import Update
 from aiogram.enums import ParseMode
-
 from config import BOT_TOKEN, WEBHOOK_URL, WEBHOOK_PATH
 from handlers import commands, forward_handler
 
 # Создаем экземпляры бота и диспетчера
-bot = Bot(token=BOT_TOKEN, parse_mode=ParseMode.HTML)
+default_properties = DefaultBotProperties(parse_mode=ParseMode.HTML)  # Устанавливаем parse_mode через DefaultBotProperties
+bot = Bot(token=BOT_TOKEN, default=default_properties)
 dp = Dispatcher()
 
 # Регистрация роутеров
