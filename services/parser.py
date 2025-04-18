@@ -1,5 +1,10 @@
 import re
 from utils.text import normalize_price
+import logging
+
+# Настройка логирования
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def extract_product(text: str):
     """
@@ -27,7 +32,7 @@ def extract_product(text: str):
         
         for item in matches:
             # Обрабатываем каждую найденную единицу товара
-            # Ищем разделитель (- или :), выбираем ближайшую подходящую пару
+            # Ищем разделитель (- или :)
             separator_pos = max(item.find('-'), item.find(':'))
             
             if separator_pos >= 0:
@@ -35,12 +40,16 @@ def extract_product(text: str):
                 product_name = item[:separator_pos].strip()
                 
                 # Отделяем цену (после разделителя)
-                raw_price = item[separator_pos + 1:].strip().replace('₽', '')
+                raw_price = item[separator_pos + 1:].strip().replace('₽', '').replace(',', '.')
                 
-                # Приведение цены к числу
-                normalized_price = normalize_price(raw_price)
-                
-                # Сохраняем результат
-                results.append((product_name, normalized_price))
+                try:
+                    # Приведение цены к числу
+                    normalized_price = normalize_price(raw_price)
+                    
+                    # Сохраняем результат
+                    results.append((product_name, normalized_price))
+                    logger.info(f"✅ Успешно извлечён товар: {product_name}, цена: {normalized_price}")
+                except ValueError as e:
+                    logger.error(f"❌ Ошибка при нормализации цены для товара '{product_name}': {e}")
     
     return results
