@@ -32,11 +32,21 @@ async def main():
     # Выбор режима работы: polling или webhook
     if WEBHOOK_URL:
         print("Запуск бота с использованием Webhook...")
-        from api.main import run_webhook  # Импортируем функцию запуска FastAPI
-        await run_webhook(dp, bot)
+        try:
+            from api.main import run_webhook  # Импортируем функцию запуска FastAPI
+            await run_webhook(dp, bot)
+        except ImportError as e:
+            print(f"Ошибка при импорте FastAPI: {e}")
+            print("Переключение на Polling...")
+            await dp.start_polling(bot)
     else:
         print("Запуск бота с использованием Polling...")
         await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("Бот остановлен пользователем.")
+    except Exception as e:
+        print(f"Произошла ошибка: {e}")
