@@ -31,25 +31,29 @@ def extract_product(text: str):
             matches = [line]
         
         for item in matches:
-            # Обрабатываем каждую найденную единицу товара
-            # Ищем разделитель (- или :)
-            separator_pos = max(item.find('-'), item.find(':'))
+            # Разделяем товары, если они перечислены через запятую
+            items = [i.strip() for i in item.split(",") if i.strip()]
             
-            if separator_pos >= 0:
-                # Отделяем имя товара (до разделителя)
-                product_name = item[:separator_pos].strip()
+            for sub_item in items:
+                # Обрабатываем каждую найденную единицу товара
+                # Ищем разделитель (- или :)
+                separator_pos = max(sub_item.find('-'), sub_item.find(':'))
                 
-                # Отделяем цену (после разделителя)
-                raw_price = item[separator_pos + 1:].strip().replace('₽', '').replace(',', '.')
-                
-                try:
-                    # Приведение цены к числу
-                    normalized_price = normalize_price(raw_price)
+                if separator_pos >= 0:
+                    # Отделяем имя товара (до разделителя)
+                    product_name = sub_item[:separator_pos].strip()
                     
-                    # Сохраняем результат
-                    results.append((product_name, normalized_price))
-                    logger.info(f"✅ Успешно извлечён товар: {product_name}, цена: {normalized_price}")
-                except ValueError as e:
-                    logger.error(f"❌ Ошибка при нормализации цены для товара '{product_name}': {e}")
+                    # Отделяем цену (после разделителя)
+                    raw_price = sub_item[separator_pos + 1:].strip().replace('₽', '').replace(',', '.')
+                    
+                    try:
+                        # Приведение цены к числу
+                        normalized_price = normalize_price(raw_price)
+                        
+                        # Сохраняем результат
+                        results.append((product_name, normalized_price))
+                        logger.info(f"✅ Успешно извлечён товар: {product_name}, цена: {normalized_price}")
+                    except ValueError as e:
+                        logger.error(f"❌ Ошибка при нормализации цены для товара '{product_name}': {e}")
     
     return results
